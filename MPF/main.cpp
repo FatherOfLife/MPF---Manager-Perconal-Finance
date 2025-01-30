@@ -1,20 +1,36 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <iostream>
 
-class Wallet { // место где хранятся карты и из которого можно посмотреть общую сумму кредита, долга, денег
-private:
-	//динамический массив карт кредитных и дебетовых
-public:
-	//геттер общей суммы кредита, долга, денег
 
-};
+const int sizeN{ 19 };
+
+
+
+
 
 class Card {
 protected:
-	const char* number; //номер карты
+	char* number; //номер карты
 	int amountOfMoney; // Сумма денег на карте
 public:
 
+	char* getNum() { // получить номер карточки
+		return number;
+	}
 
+	int getMoney() { // получить количество денег на карточке
+		return amountOfMoney;
+	}
+
+
+	void setNum(char* number_p) { // назначить номер карточки
+		number = number_p;
+	}
+
+	void setMoney(int amountOfMoney_p) { // назначить количество денег на карточке
+		amountOfMoney = amountOfMoney_p;
+	}
 
 };
 
@@ -46,7 +62,7 @@ public:
 };
 
 
-class Debt : protected Card {
+class Debt : public Card {
 private:
 	
 	bool limD(Purchase purch) { // проверка не уходим ли мы в минус
@@ -60,7 +76,18 @@ private:
 
 	}
 public:
-	Debt(const char* number_p, int amountOfMoney_p) {
+	Debt() { //конструктор дебетовой карты без параметров для Wallet
+		
+		char numCard[sizeN]{}; // локальная переменная для задавания номера дебетовой карты 
+		std::cout << "Введите номер новой дебетовой карты: ";
+		std::cin >> numCard;
+		strcpy(number, numCard);
+
+		std::cout << "Введите количество денег на счету новой дебетовой карты: ";
+		std::cin >> amountOfMoney;
+
+	}
+	Debt(char* number_p, int amountOfMoney_p) {
 		number = number_p;
 		amountOfMoney = amountOfMoney_p;
 	}
@@ -79,26 +106,11 @@ public:
 
 
 
-	const char* getNum() { // получить номер карточки
-		return number;
-	}
-
-	int getMoney() { // получить количество денег на карточке
-		return amountOfMoney;
-	}
-
-
-	void setNum(const char* number_p) { // назначить номер карточки
-		number = number_p;
-	}
-
-	void setMoney(int amountOfMoney_p) { // назначить количество денег на карточке
-		amountOfMoney = amountOfMoney_p;
-	}
+	
 
 };
 
-class Credit : protected Card {
+class Credit : public Card {
 private:
 	int creditLim; //лимит кредита
 	int debt; //долг
@@ -120,18 +132,37 @@ private:
 	
 
 public:
-	Credit(const char* number_p, int amountOfMoney_p, int creditLim_p, int debt_p) {
+
+	Credit() { //конструктор кредитнойй карты без параметров для Wallet
+		char numCard[sizeN]{}; // локальная переменная для задавания номера кредитной карты 
+		std::cout << "Введите номер новой кредитной карты: ";
+		std::cin >> numCard;
+		strcpy(number, numCard);
+
+		std::cout << "Введите количество денег на счету новой кредитной карты: ";
+		std::cin >> amountOfMoney;
+
+		std::cout << "Введите лимит кредита новой кредитной карты: ";
+		std::cin >> creditLim;
+
+		std::cout << "Введите сумму долга новой кредитной карты: ";
+		std::cin >> debt;
+		
+		
+	}
+
+	Credit(char* number_p, int amountOfMoney_p, int creditLim_p, int debt_p) {
 		number = number_p;
 		amountOfMoney = amountOfMoney_p;
 		creditLim = creditLim_p;
 		debt = debt_p;
 	}
 
-	Credit(const char* number_p, int amountOfMoney_p, int creditLim_p) : Credit(number_p, amountOfMoney_p, creditLim_p, 0) {
+	Credit(char* number_p, int amountOfMoney_p, int creditLim_p) : Credit(number_p, amountOfMoney_p, creditLim_p, 0) {
 		
 	}
 
-	Credit(const char* number_p, int amountOfMoney_p) : Credit(number_p, amountOfMoney_p, 0, 0) {
+	Credit(char* number_p, int amountOfMoney_p) : Credit(number_p, amountOfMoney_p, 0, 0) {
 	}
 
 
@@ -148,13 +179,7 @@ public:
 
 
 
-	const char* getNum() { // получить номер карточки
-		return number;
-	}
-
-	int getMoney() { // получить количество денег на карточке
-		return amountOfMoney;
-	}
+	
 
 	int getCreditLim() { // получить сумму лимита кредита
 		return amountOfMoney;
@@ -165,13 +190,7 @@ public:
 	}
 
 	
-	void setNum(const char* number_p) { // назначить номер карточки
-		number = number_p;
-	}
-
-	void setMoney(int amountOfMoney_p) { // назначить количество денег на карточке
-		amountOfMoney = amountOfMoney_p;
-	}
+	
 	void setCreditLim(int creditLim_p) { // назначить сумму лимита кредита
 		creditLim = creditLim_p;
 	}
@@ -181,13 +200,46 @@ public:
 };
 
 
+class Wallet { // место где хранятся карты и из которого можно посмотреть общую сумму кредита, долга, денег
+private: //динамический массив карт кредитных и дебетовых
+	Debt* dCards;
+	int dSize; //количество дебетовых карт
+
+	Credit* cCards;
+	int cSize; //количество кредитных карт
+
+	
+public://геттер общей суммы кредита, долга, денег
+	//КАРОЧЕ НАДО НАПИСАТЬ МЕТОД ДОБАВЛЕНИЕ НОВОЙ КАРТЫ(ДЕБЕТОВОЙ И КРЕДИТНОЙ) В ДИНАМИЧЕСКИЙ МАССИВ, ТИПО КАК В ВЕКТОРЕ, ТАКЖЕ МЕТОД УДАЛЕНИЕ КАРТЫ И ТД
+
+	Wallet(int dSize_p, int cSize_p) : dSize{ dSize_p }, cSize{ cSize_p } { // принимает количество дебетовых, количество кредитных
+		
+		dCards = new Debt[dSize];
+		cCards = new Credit[cSize];
+		
+	}
+
+
+
+	~Wallet(){
+		delete[] dCards;
+		delete[] cCards;
+	}	
+
+};
+
 int main(){
 	setlocale(LC_ALL, "Russian");
 
+	Wallet wal{ 1, 1 };
 
-	Debt cardD1{ "123543", 12 };
+	 // количество символов в карте(максимальное)
+	char numCard1[sizeN]{"123543"};//номер карты для инициализации карт
+	char numCard2[sizeN]{ "1488" };//номер карты для инициализации карт
+
+	Debt cardD1{ numCard1, 12 };
 	
-	Credit cardC1{ "1488", 1231231, 100 };
+	Credit cardC1{ numCard2, 1231231, 100 };
 
 	Purchase purch{ 500, "Pivo" };
 
