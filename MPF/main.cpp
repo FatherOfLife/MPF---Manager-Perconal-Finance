@@ -1,9 +1,10 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
+#include <vector>
+#include <cstring>
 
-
-const int sizeN{ 19 };
+const int sizeN{ 19 };//для максимального значения номера карты
 
 
 
@@ -11,7 +12,7 @@ const int sizeN{ 19 };
 
 class Card {
 protected:
-	char* number; //номер карты
+	char number[sizeN]; //номер карты
 	int amountOfMoney; // Сумма денег на карте
 public:
 
@@ -25,7 +26,8 @@ public:
 
 
 	void setNum(char* number_p) { // назначить номер карточки
-		number = number_p;
+		strcpy(number, number_p);
+		
 	}
 
 	void setMoney(int amountOfMoney_p) { // назначить количество денег на карточке
@@ -78,17 +80,18 @@ private:
 public:
 	Debt() { //конструктор дебетовой карты без параметров для Wallet
 		
-		char numCard[sizeN]{}; // локальная переменная для задавания номера дебетовой карты 
+		char numCard[sizeN]{""}; // локальная переменная для задавания номера дебетовой карты 
 		std::cout << "Введите номер новой дебетовой карты: ";
 		std::cin >> numCard;
 		strcpy(number, numCard);
+		
 
 		std::cout << "Введите количество денег на счету новой дебетовой карты: ";
 		std::cin >> amountOfMoney;
-
+		std::cout << std::endl;
 	}
 	Debt(char* number_p, int amountOfMoney_p) {
-		number = number_p;
+		strcpy(number, number_p);
 		amountOfMoney = amountOfMoney_p;
 	}
 
@@ -138,6 +141,7 @@ public:
 		std::cout << "Введите номер новой кредитной карты: ";
 		std::cin >> numCard;
 		strcpy(number, numCard);
+		
 
 		std::cout << "Введите количество денег на счету новой кредитной карты: ";
 		std::cin >> amountOfMoney;
@@ -147,12 +151,12 @@ public:
 
 		std::cout << "Введите сумму долга новой кредитной карты: ";
 		std::cin >> debt;
-		
+		std::cout << std::endl;
 		
 	}
 
 	Credit(char* number_p, int amountOfMoney_p, int creditLim_p, int debt_p) {
-		number = number_p;
+		strcpy(number, number_p);
 		amountOfMoney = amountOfMoney_p;
 		creditLim = creditLim_p;
 		debt = debt_p;
@@ -182,11 +186,11 @@ public:
 	
 
 	int getCreditLim() { // получить сумму лимита кредита
-		return amountOfMoney;
+		return creditLim;
 	}
 
 	int getDebt() { // получить сумму долга
-		return amountOfMoney;
+		return debt;
 	}
 
 	
@@ -202,54 +206,234 @@ public:
 
 class Wallet { // место где хранятся карты и из которого можно посмотреть общую сумму кредита, долга, денег
 private: //динамический массив карт кредитных и дебетовых
-	Debt* dCards;
+	
+	std::vector<Debt> dCards; 
 	int dSize; //количество дебетовых карт
 
-	Credit* cCards;
+	std::vector<Credit> cCards;
 	int cSize; //количество кредитных карт
 
+	char* walletName;;
+	
 	
 public://геттер общей суммы кредита, долга, денег
 	//КАРОЧЕ НАДО НАПИСАТЬ МЕТОД ДОБАВЛЕНИЕ НОВОЙ КАРТЫ(ДЕБЕТОВОЙ И КРЕДИТНОЙ) В ДИНАМИЧЕСКИЙ МАССИВ, ТИПО КАК В ВЕКТОРЕ, ТАКЖЕ МЕТОД УДАЛЕНИЕ КАРТЫ И ТД
 
 	Wallet(int dSize_p, int cSize_p) : dSize{ dSize_p }, cSize{ cSize_p } { // принимает количество дебетовых, количество кредитных
 		
-		dCards = new Debt[dSize];
-		cCards = new Credit[cSize];
-		
+		char numCard[sizeN]{}; // локальная переменная для задавания номера кредитной карты 
+		std::cout << "Введите имя нового кошелька: ";
+		std::cin >> numCard;
+		walletName = numCard;
+		for(int i{}; i < dSize; i++){
+			dCards.push_back(Debt());
+		}
+		for (int i{}; i < cSize; i++) {
+			cCards.push_back(Credit());
+		}
+	}
+
+	void addCCard() {
+		cCards.push_back(Credit());
+		++cSize;
+	}
+	void addDCard() {
+		dCards.push_back(Debt());
+		++dSize;
+	}
+	//методы с кредитными картами
+	int getAllCreditLim() {
+		int AllLim{};
+		for(int i{}; i < cSize; i++){
+			AllLim += cCards[i].getCreditLim();
+		}
+		return AllLim;
+	}
+
+	int getAllCreditDebt() {
+		int AllDebt{};
+		for (int i{}; i < cSize; i++) {
+			AllDebt += cCards[i].getDebt();
+		}
+		return AllDebt;
+	}
+
+	int getAllCreditMoney() {
+		int AllMoney{};
+		for (int i{}; i < cSize; i++) {
+			AllMoney += cCards[i].getMoney();
+		}
+		return AllMoney;
+	}
+
+	void printCredit() {
+		for (int i{}; i < cSize; i++) {
+			std::cout <<(i + 1) << ") " << cCards[i].getNum() << std::endl;
+		}
+		std::cout << std::endl;
 	}
 
 
+	//методы с дебетовыми
+	int getAllDebtMoney() {
+		int AllMoney{};
+		for (int i{}; i < dSize; i++) {
+			AllMoney += dCards[i].getMoney();
+		}
+		return AllMoney;
+	}
 
-	~Wallet(){
-		delete[] dCards;
-		delete[] cCards;
-	}	
-
+	void printDebtCards() {
+		for (int i{}; i < dSize; i++) {
+			std::cout << (i + 1) << ") " << dCards[i].getNum() << std::endl;
+		}
+		std::cout << std::endl;
+	}
 };
+
+
+void Interface(Wallet wallet) {
+	int mainI{};
+	while (mainI == 0) {
+		int menuI;
+		std::cout << "\tMPF - Manager Personal Finance" << std::endl;
+		std::cout << "1) Карты" << std::endl;
+		std::cout << "2) Записать покупку" << std::endl;
+		std::cout << "3) Сводка " << std::endl;
+		std::cout << "4) Управление кошельками" << std::endl;
+		std::cout << "5) Выход" << std::endl;
+		std::cout << "Ваш выбор: ";
+		std::cin >> menuI;
+		std::cout << std::endl;
+
+		switch (menuI) {
+		case(1):
+			int menuI2;
+			std::cout << "\tMPF - Manager Personal Finance" << std::endl;
+			std::cout << "1) Кредитные карты" << std::endl;
+			std::cout << "2) Дебетовые карты" << std::endl;
+			std::cout << "Ваш выбор: ";
+			std::cin >> menuI2;
+			std::cout << std::endl;
+
+			if (menuI2 == 1) {
+				std::cout << "\tMPF - Manager Personal Finance" << std::endl;
+				std::cout << "1) Общее" << std::endl;
+				std::cout << "2) Список кредитных карт" << std::endl;
+				std::cout << "3) Добавить новую кредитную карту" << std::endl;
+				std::cout << "Ваш выбор: ";
+				std::cin >> menuI2;
+				std::cout << std::endl;
+				if (menuI2 == 1) {
+					std::cout << "\tMPF - Manager Personal Finance" << std::endl;
+					std::cout << "Общая сумма средств: " << wallet.getAllCreditMoney() << std::endl;
+					std::cout << "Общая сумма лимита: " << wallet.getAllCreditLim() << std::endl;
+					std::cout << "Общая сумма долга: " << wallet.getAllCreditDebt() << std::endl;
+					std::cout << std::endl;
+				}
+				else if (menuI2 == 2) {
+					std::cout << "\tMPF - Manager Personal Finance" << std::endl;
+					wallet.printCredit();
+					std::cout << std::endl;
+				}
+				else if (menuI2 == 3) {
+					wallet.addCCard();
+
+				}
+				else {
+					std::cerr << "Введено некорректное значение!!!" << std::endl;
+				}
+
+			}
+			else if (menuI2 == 2) {
+
+				std::cout << "\tMPF - Manager Personal Finance" << std::endl;
+				std::cout << "1) Общее" << std::endl;
+				std::cout << "2) Список дебетовых карт" << std::endl;
+				std::cout << "3) Добавить новую дебетовую карту" << std::endl;
+				std::cout << "Ваш выбор: ";
+				std::cin >> menuI2;
+				std::cout << std::endl;
+				if (menuI2 == 1) {
+					std::cout << "\tMPF - Manager Personal Finance" << std::endl;
+					std::cout << "Общая сумма средств: " << wallet.getAllDebtMoney() << std::endl;
+					std::cout << std::endl;
+				}
+				else if (menuI2 == 2) {
+					std::cout << "\tMPF - Manager Personal Finance" << std::endl;
+					wallet.printDebtCards();
+					std::cout << std::endl;
+
+				}
+				else if (menuI2 == 3) {
+					wallet.addDCard();
+
+				}
+				else {
+					std::cerr << "Введено некорректное значение!!!" << std::endl;
+				}
+
+			}
+			else {
+				std::cerr << "Введено некорректное значение!!!" << std::endl;
+			}
+			break;
+		case(2):
+
+			break;
+		case(3):
+
+			break;
+		case(4):
+
+			break;
+		case(5):
+			break;
+		}
+		/*
+		1) Карты
+		1.1) Кредитные
+		1.2) Дебетовые
+		2) Записать покупку
+		3) Сводка
+		4) Управление Кошельками
+		*/
+
+	}
+
+	
+
+}
 
 int main(){
 	setlocale(LC_ALL, "Russian");
-
-	Wallet wal{ 1, 1 };
-
-	 // количество символов в карте(максимальное)
-	char numCard1[sizeN]{"123543"};//номер карты для инициализации карт
-	char numCard2[sizeN]{ "1488" };//номер карты для инициализации карт
-
-	Debt cardD1{ numCard1, 12 };
 	
-	Credit cardC1{ numCard2, 1231231, 100 };
+	Wallet wal{ 0, 0 };
 
-	Purchase purch{ 500, "Pivo" };
+	Interface(wal);
 
-	int temp{};
+	
 
-	std::cin >> temp;
-	cardC1.setMoney(temp);
-	std::cout << cardC1.getMoney() << std::endl;
-	cardC1.doPurchase(purch);
-	std::cout << cardC1.getMoney() << std::endl;
+	 
+	//char numCard1[sizeN]{"123543"};//номер карты для инициализации карт
+	//char numCard2[sizeN]{ "1488" };//номер карты для инициализации карт
+
+	//Debt d(numCard1, 100);
+	//std::cout << d.getNum();
+
+	//Debt cardD1{ numCard1, 12 };
+	//
+	//Credit cardC1{ numCard2, 1231231, 100 };
+
+	//Purchase purch{ 500, "Pivo" };
+
+	//int moneyMain{};
+
+	//std::cin >> moneyMain;
+	//cardC1.setMoney(moneyMain);
+	//std::cout << cardC1.getMoney() << std::endl;
+	//cardC1.doPurchase(purch);
+	//std::cout << cardC1.getMoney() << std::endl;
 
 
 	return 0;
