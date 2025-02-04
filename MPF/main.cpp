@@ -1,3 +1,5 @@
+//пополнение карт, информация определенной карты, допиши покупку для дебта
+
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
@@ -5,7 +7,7 @@
 #include <cstring>
 
 const int sizeN{ 19 };//для максимального значения номера карты
-
+const int sizeP{ 50 };//Для максимального количества букв в названии/категории
 
 
 
@@ -40,18 +42,31 @@ public:
 class Purchase { // класс который несёт в себе сумму покупки и её категорию
 private:
 	int sum;
-	const char* category; //название категории
+	char name[sizeP]; //наименование товара
+	char category[sizeP]; //название категории
 
 public:
-	Purchase(int sum_p, const char* category_p) : sum{ sum_p }, category{category_p} {
+	Purchase(int sum_p, char* name_p, char* category_p) {
+		sum = sum_p;
+		strcpy(name, name_p);
+		strcpy(category, category_p);
+	}
+	Purchase() {
+		sum = 0;
+		strcpy(name, "");
+		strcpy(category, "");
 	}
 
 	int getSum() { //Вернуть сумму покупки
 		return sum;
 	}
 	
-	const char* getCategory() { //Вернуть категорию покупки
+	char* getCategory() { //Вернуть наименование покупки
 		return category; 
+	}
+
+	char* getName() { //Вернуть наименование покупки
+		return name;
 	}
 
 	void setSum(int sum_p) { // назначить сумму покупки
@@ -59,7 +74,11 @@ public:
 	}
 
 	void setCategory(const char* category_p) { // назначить категорию покупки
-		category = category_p;
+		strcpy(category, category_p);
+	}
+
+	void setName(const char* name_p) { // назначить наименование покупки
+		strcpy(category, name_p);
 	}
 };
 
@@ -242,6 +261,11 @@ public://геттер общей суммы кредита, долга, денег
 		++dSize;
 	}
 	//методы с кредитными картами
+
+	Credit& getCreditCard(int index) {
+		return cCards[index];
+	}
+
 	int getAllCreditLim() {
 		int AllLim{};
 		for(int i{}; i < cSize; i++){
@@ -275,6 +299,10 @@ public://геттер общей суммы кредита, долга, денег
 
 
 	//методы с дебетовыми
+	Debt& getDebtCard(int index) {
+		return dCards[index];
+	}
+
 	int getAllDebtMoney() {
 		int AllMoney{};
 		for (int i{}; i < dSize; i++) {
@@ -379,7 +407,53 @@ void Interface(Wallet wallet) {
 			}
 			break;
 		case(2):
+		{//<-- нужны для решения проблемы с инициализацией newPurch
+			char pName[sizeP];
+			char pCategory[sizeP];
+			int pSum;
 
+			std::cout << "\tMPF - Manager Personal Finance" << std::endl;
+			std::cout << "Введите наименование покупки: " << std::endl;
+			std::cin >> pName;
+			std::cout << "Введите категорию покупки: " << std::endl;
+			std::cin >> pCategory;
+			std::cout << "Введите сумму покупки: " << std::endl;
+			std::cin >> pSum;
+			Purchase newPurch{ pSum, pName, pCategory };
+			std::cout << std::endl;
+
+			int menuI3;
+			std::cout << "\tMPF - Manager Personal Finance" << std::endl;
+			std::cout << "Выберите картой какого типа вы оплатили товар: " << std::endl;
+			std::cout << "1) Кредитной картой" << std::endl;
+			std::cout << "2) Дебетовой картой" << std::endl;
+			std::cout << "Ваш выбор: ";
+			std::cin >> menuI3;
+			std::cout << std::endl;
+			if (menuI3 == 1) {
+				int i{};
+				std::cout << "\tMPF - Manager Personal Finance" << std::endl;
+
+				wallet.printCredit();
+				std::cout << "Введите номер(по счету в списке) вашей карты: ";
+				std::cin >> i;
+				(wallet.getCreditCard(i - 1)).doPurchase(newPurch);
+				std::cout << std::endl;
+			}
+			else if (menuI3 == 2) {
+				std::cout << "\tMPF - Manager Personal Finance" << std::endl;
+
+				std::cout << std::endl;
+
+			}
+			else if (menuI3 == 3) {
+				wallet.addDCard();
+
+			}
+			else {
+				std::cerr << "Введено некорректное значение!!!" << std::endl;
+			}
+		}
 			break;
 		case(3):
 
@@ -408,7 +482,7 @@ void Interface(Wallet wallet) {
 int main(){
 	setlocale(LC_ALL, "Russian");
 	
-	Wallet wal{ 0, 0 };
+	Wallet wal{ 0, 2 };
 
 	Interface(wal);
 
