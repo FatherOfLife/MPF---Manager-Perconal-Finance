@@ -1,4 +1,4 @@
-//пополнение карт, информация определенной карты, допиши покупку для дебта
+//addMoney вкредитах доделай
 
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -114,6 +114,9 @@ public:
 		amountOfMoney = amountOfMoney_p;
 	}
 
+	void addMoney(int count) {
+		amountOfMoney += count;
+	}
 
 	void doPurchase(Purchase purch) { //добавить покупку(потратить деньги с карточки)
 		if (limD(purch)) {
@@ -188,6 +191,27 @@ public:
 	Credit(char* number_p, int amountOfMoney_p) : Credit(number_p, amountOfMoney_p, 0, 0) {
 	}
 
+	void addMoney(int count) {
+		/*if (lim()) {
+			if (count == (debt - creditLim)) {
+				debt = creditLim;
+				amountOfMoney = creditLim;
+			}
+			else if (count > (debt - creditLim)) {
+				amountOfMoney += count - (debt - creditLim);
+				if (amountOfMoney >= 0) {
+					debt = 0;
+				}
+				else {
+					debt = amountOfMoney;
+				}
+			}
+		}
+		else {
+			amountOfMoney += count;
+			debt = 0;
+		}*/
+	}
 
 	void doPurchase(Purchase purch) { //добавить покупку(потратить деньги с карточки)
 		amountOfMoney = amountOfMoney - purch.getSum();
@@ -292,7 +316,7 @@ public://геттер общей суммы кредита, долга, денег
 
 	void printCredit() {
 		for (int i{}; i < cSize; i++) {
-			std::cout <<(i + 1) << ") " << cCards[i].getNum() << std::endl;
+			std::cout <<(i + 1) << ") " << cCards[i].getNum() << "\t\tбаланс: " << cCards[i].getMoney()<< "\tлимит: " << cCards[i].getCreditLim() << "\tдолг: " << cCards[i].getDebt() << std::endl;
 		}
 		std::cout << std::endl;
 	}
@@ -313,7 +337,7 @@ public://геттер общей суммы кредита, долга, денег
 
 	void printDebtCards() {
 		for (int i{}; i < dSize; i++) {
-			std::cout << (i + 1) << ") " << dCards[i].getNum() << std::endl;
+			std::cout << (i + 1) << ") " << dCards[i].getNum() << "\tбаланс: " << dCards[i].getMoney() << std::endl;
 		}
 		std::cout << std::endl;
 	}
@@ -349,6 +373,7 @@ void Interface(Wallet wallet) {
 				std::cout << "1) Общее" << std::endl;
 				std::cout << "2) Список кредитных карт" << std::endl;
 				std::cout << "3) Добавить новую кредитную карту" << std::endl;
+				std::cout << "4) Пополнить карту" << std::endl;
 				std::cout << "Ваш выбор: ";
 				std::cin >> menuI2;
 				std::cout << std::endl;
@@ -368,6 +393,21 @@ void Interface(Wallet wallet) {
 					wallet.addCCard();
 
 				}
+				else if (menuI2 == 4) {
+					int i{};
+					int sum{};
+					std::cout << "\tMPF - Manager Personal Finance" << std::endl;
+
+					wallet.printCredit();
+					std::cout << "Введите номер(по счету в списке) вашей карты: ";
+					std::cin >> i;
+
+					std::cout << "Введите сумму пополнения: ";
+					std::cin >> sum;
+					(wallet.getCreditCard(i-1)).addMoney(sum);
+					std::cout << std::endl;
+
+				}
 				else {
 					std::cerr << "Введено некорректное значение!!!" << std::endl;
 				}
@@ -379,6 +419,7 @@ void Interface(Wallet wallet) {
 				std::cout << "1) Общее" << std::endl;
 				std::cout << "2) Список дебетовых карт" << std::endl;
 				std::cout << "3) Добавить новую дебетовую карту" << std::endl;
+				std::cout << "4) Пополнить карту" << std::endl;
 				std::cout << "Ваш выбор: ";
 				std::cin >> menuI2;
 				std::cout << std::endl;
@@ -395,6 +436,21 @@ void Interface(Wallet wallet) {
 				}
 				else if (menuI2 == 3) {
 					wallet.addDCard();
+
+				}
+				else if (menuI2 == 4) {
+					int i{};
+					int sum{};
+					std::cout << "\tMPF - Manager Personal Finance" << std::endl;
+
+					wallet.printDebtCards();
+					std::cout << "Введите номер(по счету в списке) вашей карты: ";
+					std::cin >> i;
+
+					std::cout << "Введите сумму пополнения: ";
+					std::cin >> sum;
+					(wallet.getDebtCard(i-1)).addMoney(sum);
+					std::cout << std::endl;
 
 				}
 				else {
@@ -441,13 +497,14 @@ void Interface(Wallet wallet) {
 				std::cout << std::endl;
 			}
 			else if (menuI3 == 2) {
+				int i{};
 				std::cout << "\tMPF - Manager Personal Finance" << std::endl;
 
+				wallet.printDebtCards();
+				std::cout << "Введите номер(по счету в списке) вашей карты: ";
+				std::cin >> i;
+				(wallet.getDebtCard(i - 1)).doPurchase(newPurch);
 				std::cout << std::endl;
-
-			}
-			else if (menuI3 == 3) {
-				wallet.addDCard();
 
 			}
 			else {
@@ -482,7 +539,7 @@ void Interface(Wallet wallet) {
 int main(){
 	setlocale(LC_ALL, "Russian");
 	
-	Wallet wal{ 0, 2 };
+	Wallet wal{ 0, 1};
 
 	Interface(wal);
 
