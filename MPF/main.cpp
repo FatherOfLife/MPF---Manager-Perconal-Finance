@@ -1,10 +1,10 @@
-//addMoney вкредитах доделай
+//управление кошельками
 
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
 #include <vector>
-#include <cstring>
+
 
 const int sizeN{ 19 };//для максимального значения номера карты
 const int sizeP{ 50 };//Для максимального количества букв в названии/категории
@@ -96,6 +96,7 @@ private:
 		}
 
 	}
+	
 public:
 	Debt() { //конструктор дебетовой карты без параметров для Wallet
 		
@@ -192,25 +193,10 @@ public:
 	}
 
 	void addMoney(int count) {
-		/*if (lim()) {
-			if (count == (debt - creditLim)) {
-				debt = creditLim;
-				amountOfMoney = creditLim;
-			}
-			else if (count > (debt - creditLim)) {
-				amountOfMoney += count - (debt - creditLim);
-				if (amountOfMoney >= 0) {
-					debt = 0;
-				}
-				else {
-					debt = amountOfMoney;
-				}
-			}
-		}
-		else {
-			amountOfMoney += count;
-			debt = 0;
-		}*/
+		amountOfMoney += count;
+		debt = -debt + count;
+		if (debt > 0) { debt = 0; }
+		else { debt = -debt; };
 	}
 
 	void doPurchase(Purchase purch) { //добавить покупку(потратить деньги с карточки)
@@ -256,24 +242,49 @@ private: //динамический массив карт кредитных и дебетовых
 	std::vector<Credit> cCards;
 	int cSize; //количество кредитных карт
 
-	char* walletName;;
+	char walletName[sizeP];
 	
 	
 public://геттер общей суммы кредита, долга, денег
-	//КАРОЧЕ НАДО НАПИСАТЬ МЕТОД ДОБАВЛЕНИЕ НОВОЙ КАРТЫ(ДЕБЕТОВОЙ И КРЕДИТНОЙ) В ДИНАМИЧЕСКИЙ МАССИВ, ТИПО КАК В ВЕКТОРЕ, ТАКЖЕ МЕТОД УДАЛЕНИЕ КАРТЫ И ТД
+
 
 	Wallet(int dSize_p, int cSize_p) : dSize{ dSize_p }, cSize{ cSize_p } { // принимает количество дебетовых, количество кредитных
 		
 		char numCard[sizeN]{}; // локальная переменная для задавания номера кредитной карты 
 		std::cout << "Введите имя нового кошелька: ";
 		std::cin >> numCard;
-		walletName = numCard;
+		strcpy(walletName, numCard);
 		for(int i{}; i < dSize; i++){
 			dCards.push_back(Debt());
 		}
 		for (int i{}; i < cSize; i++) {
 			cCards.push_back(Credit());
 		}
+	}
+	Wallet() { // принимает количество дебетовых, количество кредитных
+
+		char numCard[sizeN]{}; // локальная переменная для задавания номера кредитной карты 
+		std::cout << "Введите имя нового кошелька: ";
+		std::cin >> numCard;
+		strcpy(walletName, numCard);
+
+		std::cout << "Введите количество дебетовых карт: ";
+		std::cin >> dSize;
+
+		std::cout << "Введите количество кредитных карт: ";
+		std::cin >> cSize;
+
+		for (int i{}; i < dSize; i++) {
+			dCards.push_back(Debt());
+		}
+		for (int i{}; i < cSize; i++) {
+			cCards.push_back(Credit());
+		}
+		std::cout << std::endl;
+	}
+
+	char* getNum() { // получить номер карточки
+		return walletName;
 	}
 
 	void addCCard() {
@@ -351,9 +362,7 @@ void Interface(Wallet wallet) {
 		std::cout << "\tMPF - Manager Personal Finance" << std::endl;
 		std::cout << "1) Карты" << std::endl;
 		std::cout << "2) Записать покупку" << std::endl;
-		std::cout << "3) Сводка " << std::endl;
-		std::cout << "4) Управление кошельками" << std::endl;
-		std::cout << "5) Выход" << std::endl;
+		std::cout << "3) Выход " << std::endl;
 		std::cout << "Ваш выбор: ";
 		std::cin >> menuI;
 		std::cout << std::endl;
@@ -513,21 +522,17 @@ void Interface(Wallet wallet) {
 		}
 			break;
 		case(3):
-
+			mainI = 1;
 			break;
-		case(4):
-
-			break;
-		case(5):
-			break;
+		
 		}
+		std::cout << std::endl;
 		/*
 		1) Карты
 		1.1) Кредитные
 		1.2) Дебетовые
 		2) Записать покупку
-		3) Сводка
-		4) Управление Кошельками
+		3) Выход
 		*/
 
 	}
@@ -539,9 +544,39 @@ void Interface(Wallet wallet) {
 int main(){
 	setlocale(LC_ALL, "Russian");
 	
-	Wallet wal{ 0, 1};
+	std::vector<Wallet> walletArr;
+	int WSize{};
 
-	Interface(wal);
+	int countOfWallets;
+
+	std::cout << "\tMPF - Manager Personal Finance" << std::endl;
+	std::cout << "Сколько кошельков вы хотите создать: ";
+	std::cin >> countOfWallets;
+	if (countOfWallets == 0) {
+		std::cout << "Досвидание!";
+		return 0;
+	}
+	for (int i{}; i < countOfWallets; i++) {
+		walletArr.push_back( Wallet());
+		++WSize;
+	}
+	std::cout << std::endl;
+
+	int exit{};
+	while (exit == 0) {
+		std::cout << "\tMPF - Manager Personal Finance" << std::endl;
+		for (int i{}; i < WSize; i++) {
+			std::cout << (i + 1) << ") " << walletArr[i].getNum() << std::endl;
+		}
+		int menuI5;
+		std::cout << std::endl;
+		std::cout << "Введите порядковый номер кошелька с которым хочешь работать: ";
+		std::cin >> menuI5;
+		Interface(walletArr[menuI5-1]);
+
+	}
+
+	//Interface(wal);
 
 	
 
